@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- auto-scribe specific ---
+# Playwright session state for Medium (contains auth cookies — never commit)
+medium_state.json
+# Raw generated article files are pushed via the GitHub API, not committed locally
+*.html
+!index.html
