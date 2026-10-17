@@ -11,6 +11,11 @@
 
 <p>An AI coding agent starts with a goal, not a cursor. Give it "add rate limiting to this endpoint" and it reads the codebase, writes the patch, runs the tests, and iterates until they pass. The capability that makes this work is not a bigger model. It is a disciplined loop: plan, act, observe, verify. This article breaks down how that loop works and what it changes for the people who build with it.</p>
 
+<figure>
+<img src="https://upload.wikimedia.org/wikipedia/commons/d/d6/AI_Humans_and_Robots.jpg" alt="A human and a humanoid robot standing side by side, representing AI agents working alongside developers">
+<figcaption>Agents do not replace developers; they multiply them. The loop only works when a human sets the goal and reviews the outcome.</figcaption>
+</figure>
+
 <h2>Beyond Autocomplete</h2>
 
 <p>Autocomplete predicts the next token. An agent pursues the next outcome. The difference is not degree but kind: the agent takes actions, observes results, and decides what to do next, while the model behind it only proposes text. Every capability an agent has, editing files, running tests, searching code, arrives through that loop.</p>
@@ -39,6 +44,11 @@
 <li><strong>Shell tools</strong> — run builds, tests, linters, and git commands.</li>
 <li><strong>Search tools</strong> — grep the codebase, glob for files, and query the web for documentation.</li>
 </ul>
+
+<figure>
+<img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Sunderland_University_Experimental_Robot_Arm.jpg" alt="An experimental robot arm in a laboratory, the physical analog of an agent's tool use">
+<figcaption>Tool use is the agent's entire body of action. A robot arm and a coding agent both act only through the interfaces they are given.</figcaption>
+</figure>
 
 <p>A tool call is structured data. This is what an agent emits to run a test suite, and what it gets back:</p>
 
@@ -77,5 +87,7 @@
 </ul>
 
 <p>AI coding agents are not autonomous engineers. They are tireless executors paired with a plan they can barely see past. The teams shipping real value with them treat the agent as the fastest junior on the roster: unlimited energy, zero tenure, and every line of its work held to the same bar as any other contributor's. Build the loop well, and the shipping takes care of itself.</p>
+
+<p>I'd love to keep the conversation going. If you found this article insightful or have thoughts, experiences, and ideas to share, let's connect on LinkedIn! https://www.linkedin.com/in/remisharoon/</p>
 </body>
 </html>
