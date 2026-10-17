@@ -44,11 +44,15 @@ STRICT OUTPUT RULES — you MUST follow every rule:
 4. Every <img> src MUST be an absolute https:// URL to a real, stable image
    (e.g. https://images.unsplash.com/... with sizing query params). Always
    include a descriptive alt attribute. Images are optional; include at
-   most 2.
+   most 2. Never fabricate photo IDs — if you cannot name a real, stable
+   image URL, omit images entirely.
 5. Structure: one <h1> title, an intro paragraph, 3–6 <h2> sections, at
    least one <ul> list, optional <pre><code> snippets, and a closing
    paragraph. Aim for 600–900 words of genuinely useful, accurate prose.
 6. Write in English, in a clear expert voice. No marketing fluff.
+7. The LAST element of <body> MUST be this exact footer paragraph
+   (plain-text URL, no <a> tag):
+   <p>I'd love to keep the conversation going. If you found this article insightful or have thoughts, experiences, and ideas to share, let's connect on LinkedIn! https://www.linkedin.com/in/remisharoon/</p>
 """
 
 
@@ -83,6 +87,10 @@ def _validate_html(html: str, canonical_url: str) -> None:
         ),
         ("<h1>" in lowered, "missing <h1> heading"),
         ("<p>" in lowered, "missing <p> paragraphs"),
+        (
+            "https://www.linkedin.com/in/remisharoon/" in lowered,
+            "missing mandatory LinkedIn footer",
+        ),
     )
     for ok, reason in checks:
         if not ok:

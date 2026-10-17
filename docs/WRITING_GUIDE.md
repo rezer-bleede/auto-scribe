@@ -37,6 +37,7 @@ follow. Machine-checkable rules are enforced by `_validate_html`
 | List | at least one `<ul>`; bullets are parallel in grammar |
 | Code | optional single `<pre><code>` block, ≤ 12 lines, realistic not toy |
 | Close | takeaway paragraph that ends on a claim, never "In conclusion" |
+| Footer | every article must end with the LinkedIn footer paragraph (section 5) |
 
 ## 3. Medium-specific constraints — and why they exist
 
@@ -89,8 +90,24 @@ Head requirements:
 - **Never fabricate Unsplash photo IDs.** An unverifiable image URL is
   worse than no image: it renders as a broken placeholder on Medium
   permanently. If unsure, drop the image. Always include `alt`.
+- **Verify before publishing.** Every image URL must return HTTP 200 with
+  an `image/*` content type (check with `curl -I <url>`). Wikimedia
+  Commons (`upload.wikimedia.org`) is a good source of stable, freely
+  licensed URLs; strip any `?utm_*` tracking params from the `src`.
 
-## 6. Do / don't examples
+## 6. Footer (mandatory)
+
+Every article must end with this exact footer paragraph, as the last
+element of `<body>` (plain text URL — `<a>` is not an allowed tag, and
+Medium auto-links bare URLs):
+
+```html
+<p>I'd love to keep the conversation going. If you found this article insightful or have thoughts, experiences, and ideas to share, let's connect on LinkedIn! https://www.linkedin.com/in/remisharoon/</p>
+```
+
+The validator enforces the LinkedIn URL; do not paraphrase or reorder.
+
+## 7. Do / don't examples
 
 Don't — layout markup Medium will strip:
 
@@ -111,7 +128,7 @@ Don't — hedged filler: "It could maybe be argued that agents sometimes
 might help developers in some cases."
 Do — a claim: "Agents made review, not typing, the bottleneck skill."
 
-## 7. Slugs & filenames
+## 8. Slugs & filenames
 
 - Lowercase kebab-case: `[a-z0-9-]`, no leading/trailing/consecutive
   hyphens, ≤ 60 chars (enforced in `generate_html_article`).
@@ -119,7 +136,7 @@ Do — a claim: "Agents made review, not typing, the bottleneck skill."
   Pages URL path. Choose it as if the article already ranks.
 - Re-publishing a slug updates the article in place (idempotent).
 
-## 8. Pre-publish checklist
+## 9. Pre-publish checklist
 
 - [ ] Topic + slug chosen; slug is kebab-case, ≤ 60 chars
 - [ ] `<!DOCTYPE html>` and `<html lang="en">` present
@@ -127,6 +144,7 @@ Do — a claim: "Agents made review, not typing, the bottleneck skill."
 - [ ] Canonical link exact: `https://rezer-bleede.github.io/auto-scribe/{slug}.html`
 - [ ] 600–900 words; 3–6 `h2` sections; ≥ 1 `ul`; close on a claim
 - [ ] No `div`/`span`/inline CSS/classes/ids/scripts anywhere
-- [ ] Any images: absolute `https://`, verified to load, ≤ 2, with `alt`
+- [ ] Any images: absolute `https://`, verified HTTP 200 `image/*`, ≤ 2, with `alt`
+- [ ] Footer paragraph present as the last element, LinkedIn URL exact
 - [ ] Passes `_validate_html` (`from generator import _validate_html`)
 - [ ] Published via `publisher.push_to_github`, URL polled to HTTP 200
