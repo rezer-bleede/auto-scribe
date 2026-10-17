@@ -9,38 +9,38 @@
 <body>
 <h1>How AI Coding Agents Plan, Use Tools, and Ship Software</h1>
 
-<p> Somewhere between autocomplete and a junior engineer lives a new kind of software: the coding agent. Give it a goal — "add rate limiting to this endpoint" — and it reads the codebase, writes the patch, runs the tests, and iterates until things pass. The magic is not one clever model; it is a disciplined loop of planning, tool use, and verification. This article unpacks how that loop works and why it changes what developers spend their days doing.</p>
+<p>An AI coding agent starts with a goal, not a cursor. Give it "add rate limiting to this endpoint" and it reads the codebase, writes the patch, runs the tests, and iterates until they pass. The capability that makes this work is not a bigger model. It is a disciplined loop: plan, act, observe, verify. This article breaks down how that loop works and what it changes for the people who build with it.</p>
 
 <h2>Beyond Autocomplete</h2>
 
-<p> Traditional assistants predict the next tokens in a file. Agents do something fundamentally different: they take an <em>action</em>, observe the result, and decide what to do next. The unit of work shifts from "complete this line" to "accomplish this task." That requires three capabilities stacked on top of the language model — a planner, a set of tools, and a way to check its own work.</p>
+<p>Autocomplete predicts the next token. An agent pursues the next outcome. The difference is not degree but kind: the agent takes actions, observes results, and decides what to do next, while the model behind it only proposes text. Every capability an agent has, editing files, running tests, searching code, arrives through that loop.</p>
 
-<p> The loop itself is simple to describe: gather context, propose a step, execute it, read the outcome, repeat. The interesting engineering is in what each box actually does under the hood.</p>
+<p>The loop itself is simple to describe: gather context, propose a step, execute it, read the outcome, repeat. The engineering lives in what each step actually does.</p>
 
 <h2>Planning: Turning Intent into Steps</h2>
 
-<p> A raw prompt like "fix the flaky login test" is too vague to execute directly. Agents plan by decomposing the goal into smaller, verifiable units before touching any code. In practice, effective planning looks like:</p>
+<p>A prompt like "fix the flaky login test" is not executable. It is a goal. Before touching code, a competent agent decomposes the goal into smaller, verifiable units. Effective planning looks like:</p>
 
 <ul>
 <li><strong>Task decomposition</strong> — break the goal into ordered steps: reproduce, diagnose, patch, validate.</li>
-<li><strong>Explicit task lists</strong> — maintain a checklist the model re-reads every turn, so long sessions do not drift from the original goal.</li>
-<li><strong>Exploration before mutation</strong> — run search tools (grep, glob, dependency graphs) to build a mental map of the repo before editing a single file.</li>
-<li><strong>Replanning on failure</strong> — when a test fails or an assumption breaks, the plan is revised rather than the last edit blindly retried.</li>
+<li><strong>Explicit task lists</strong> — keep a checklist the model re-reads every turn, so long sessions do not drift from the original goal.</li>
+<li><strong>Exploration before mutation</strong> — search the codebase with grep, glob, and dependency graphs before editing a single file.</li>
+<li><strong>Replanning on failure</strong> — when a test fails or an assumption breaks, revise the plan instead of retrying the last edit.</li>
 </ul>
 
-<p> Good plans are boring and incremental. The agents that fail in demos almost always fail because they tried to do too much in one step, then could not tell which step went wrong.</p>
+<p>Good plans are boring and incremental. Agents that fail in demos usually fail because they attempted too much in one step and could not tell which step went wrong.</p>
 
 <h2>Tool Use: The Agent's Hands</h2>
 
-<p> The model cannot edit files or run commands — it can only <em>request</em> them. Every capability comes from tools exposed through a structured interface, often an MCP server or a built-in tool registry. A typical agent wields:</p>
+<p>The model cannot edit files or run commands. It can only request them. Every capability comes from tools exposed through a structured interface, often an MCP server or a built-in registry. A typical agent wields:</p>
 
 <ul>
-<li><strong>File tools</strong> — read, write, edit with exact-match find-and-replace.</li>
+<li><strong>File tools</strong> — read, write, and edit with exact-match find-and-replace.</li>
 <li><strong>Shell tools</strong> — run builds, tests, linters, and git commands.</li>
-<li><strong>Search tools</strong> — grep the codebase, glob for files, query the web for docs.</li>
+<li><strong>Search tools</strong> — grep the codebase, glob for files, and query the web for documentation.</li>
 </ul>
 
-<p> A tool call is just structured data. This is roughly what an agent emits to run a test suite, and what it gets back:</p>
+<p>A tool call is structured data. This is what an agent emits to run a test suite, and what it gets back:</p>
 
 <pre><code>{
   "tool": "bash",
@@ -52,30 +52,30 @@
   "stdout": "FAILED test_login.py::test_refresh_token - KeyError: 'exp'"
 }</code></pre>
 
-<p> The model reads that failure, forms a hypothesis about the missing claim, opens the relevant file, and proposes a fix. Nothing about this is mystical — it is a very fast developer with perfect recall and no keyboard.</p>
+<p>The model reads that failure, forms a hypothesis about the missing claim, opens the relevant file, and proposes a fix. The loop is not mystical. It is a fast developer with perfect recall and no keyboard.</p>
 
 <h2>Context Is the Real Bottleneck</h2>
 
-<p> An agent's working memory is its context window, and it fills up fast: file dumps, test output, and tool results pile up until the model loses the thread. Serious agent systems spend as much effort on context management as on prompting — truncating large outputs, summarizing completed steps, and aggressively re-injecting the task list. The uncomfortable truth is that agent capability is bounded less by the model's IQ than by how well the harness curates what the model gets to see.</p>
+<p>An agent's working memory is its context window, and it fills fast. File dumps, test output, and tool results pile up until the model loses the thread. Serious agent systems spend as much effort on context management as on prompting: truncating large outputs, summarizing completed steps, and re-injecting the task list. Agent capability is bounded less by the model's IQ than by how well the harness curates what the model gets to see.</p>
 
 <h2>Verification: The Loop That Matters</h2>
 
-<p> Unverified generation is just expensive guessing. What separates a usable agent from a toy is that every meaningful change is checked — tests run, linters pass, diffs reviewed. As the saying goes in the eval community:</p>
+<p>Unverified generation is expensive guessing. What separates a usable agent from a toy is that every meaningful change gets checked — tests run, linters pass, diffs reviewed. As the saying goes in the eval community:</p>
 
-<blockquote> The model is not the risk. The loop without verification is the risk.</blockquote>
+<blockquote>The model is not the risk. The loop without verification is the risk.</blockquote>
 
-<p> This is also why guardrails exist: permission prompts for destructive commands, sandboxed execution for untrusted input, and human review before anything is pushed. An agent that can verify its own work still cannot be trusted to approve its own pull request.</p>
+<p>This is why guardrails exist: permission prompts for destructive commands, sandboxed execution for untrusted input, and human review before anything is pushed. An agent that can verify its own work still cannot be trusted to approve its own pull request.</p>
 
 <h2>What Changes for Developers</h2>
 
-<p> When implementation gets cheap, judgment becomes the job. In practice that means:</p>
+<p>When implementation gets cheap, judgment becomes the job. In practice that means:</p>
 
 <ul>
 <li><strong>Spec-writing replaces code-writing</strong> — clear acceptance criteria are the new function signatures.</li>
-<li><strong>Review becomes the core skill</strong> — reading a machine's 300-line diff fast, well, is a superpower.</li>
-<li><strong>Invest in test suites</strong> — agents go exactly as far as your verification lets them.</li>
+<li><strong>Review becomes the core skill</strong> — reading a machine's 300-line diff quickly and well is a superpower.</li>
+<li><strong>Test suites become the ceiling</strong> — agents go exactly as far as your verification lets them.</li>
 </ul>
 
-<p> AI coding agents are not autonomous engineers; they are tireless executors paired with a plan they can barely see past. The teams shipping real value with them treat the agent as the fastest junior on the roster — unlimited energy, zero tenure, and every line of its work held to the same bar as any other contributor's. Build the loop well, and the shipping takes care of itself.</p>
+<p>AI coding agents are not autonomous engineers. They are tireless executors paired with a plan they can barely see past. The teams shipping real value with them treat the agent as the fastest junior on the roster: unlimited energy, zero tenure, and every line of its work held to the same bar as any other contributor's. Build the loop well, and the shipping takes care of itself.</p>
 </body>
 </html>
